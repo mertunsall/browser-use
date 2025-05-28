@@ -219,8 +219,9 @@ class MessageManager:
 			context_message = HumanMessage(content='Context for the task' + self.settings.message_context)
 			self._add_message_with_tokens(context_message, message_type='init')
 
+		stripped_task = self.task.strip('\n')
 		task_message = HumanMessage(
-			content=f'Your ultimate task is: \n<ultimate_task>\n{self.task.strip("\n")}\n</ultimate_task>.\nIf you achieved your ultimate task, stop everything and use the done action in the next step to complete the task. If not, continue as usual.'
+			content=f'Your ultimate task is: \n<ultimate_task>\n{stripped_task}\n</ultimate_task>.\nIf you achieved your ultimate task, stop everything and use the done action in the next step to complete the task. If not, continue as usual.'
 		)
 		self._add_message_with_tokens(task_message, message_type='init')
 
@@ -321,7 +322,8 @@ Action: Click index [88] to go to next product page.
 			self._add_message_with_tokens(filepaths_msg, message_type='init')
 
 	def add_new_task(self, new_task: str) -> None:
-		content = f'Your new ultimate task is:\n<ultimate_task>\n{new_task.strip("\n")}\n</ultimate_task>.\nTake the previous context into account and finish your new ultimate task.'
+		stripped_task = new_task.strip('\n')
+		content = f'Your new ultimate task is:\n<ultimate_task>\n{stripped_task}\n</ultimate_task>.\nTake the previous context into account and finish your new ultimate task.'
 		msg = HumanMessage(content=content)
 		self._add_message_with_tokens(msg)
 		self.task = new_task
