@@ -234,38 +234,88 @@ class MessageManager:
 		self._add_message_with_tokens(placeholder_message, message_type='init')
 
 		example_tool_call = AIMessage(
-			content='',
-			tool_calls=[
-				{
-					'name': 'AgentOutput',
-					'args': {
-						'current_state': {
-							'evaluation_previous_goal': """
-							Success - I successfully clicked on the 'Apple' link from the Google Search results page, 
-							which directed me to the 'Apple' company homepage. This is a good start toward finding 
-							the best place to buy a new iPhone as the Apple website often list iPhones for sale.
-						""".strip(),
-							'memory': """
-							I searched for 'iPhone retailers' on Google. From the Google Search results page, 
-							I used the 'click_element_by_index' tool to click on element at index [45] labeled 'Best Buy' but calling 
-							the tool did not direct me to a new page. I then used the 'click_element_by_index' tool to click 
-							on element at index [82] labeled 'Apple' which redirected me to the 'Apple' company homepage. 
-							Currently at step 3/15.
-						""".strip(),
-							'next_goal': """
-							Looking at reported structure of the current page, I can see the item '[127]<h3 iPhone/>' 
-							in the content. I think this button will lead to more information and potentially prices 
-							for iPhones. I'll click on the link at index [127] using the 'click_element_by_index' 
-							tool and hope to see prices on the next page.
-						""".strip(),
-						},
-						'action': [{'click_element_by_index': {'index': 127}}],
-					},
-					'id': str(self.state.tool_id),
-					'type': 'tool_call',
-				},
-			],
-		)
+    content='',
+    tool_calls=[
+        {
+            'name': 'AgentOutput',
+            'args': {
+                'current_state': {
+                    'evaluation_previous_goal': """
+The previous goal was to start the flight booking process by filling out the departure and arrival airports, and the departure date. I successfully filled:
+- From: New York (JFK)
+- To: San Francisco (SFO)
+- Date: June 15, 2025
+
+I verified that the form fields were populated correctly, and no error messages appeared. Final Verdict: Success
+""".strip(),
+                    'memory': """
+Ultimate goal: Book a one-way flight from JFK to SFO departing June 15, 2025.
+
+So far:
+- Filled departure and arrival fields
+- Set date to June 15, 2025
+- One-way trip confirmed as default (no return date shown)
+
+Next: Submit this form to view available flights.
+""".strip(),
+                    'next_goal': """
+Think step by step: I’ve filled in all required fields to search for flights. The next logical step is to click the 'Search' button (index [42]) to proceed.
+
+WHY: This will load the results page where I can select a specific flight to continue booking.
+
+Action: Click index [42] to submit the search form.
+""".strip(),
+                },
+                'action': [
+                    {'click_element': {'index': 42}}
+                ],
+            },
+            'id': str(self.state.tool_id),
+            'type': 'tool_call',
+        },
+    ],
+)
+
+		example_tool_call_2 = AIMessage(
+    content='',
+    tool_calls=[
+        {
+            'name': 'AgentOutput',
+            'args': {
+                'current_state': {
+                    'evaluation_previous_goal': """
+The previous step was to extract all product names and descriptions from the current e-commerce page. I successfully extracted title and description for each of them and I saved them to the memory below. There was no page reload, but I confirmed all elements matched expected patterns. Final Verdict: Success
+""".strip(),
+                    'memory': """
+Ultimate goal: Extract all products (name + description) from all pages of this category.
+
+So far:
+- Visited Page 1 of category 'Laptops'
+- Extracted 20 products:
+  - e.g., Product 1: 'MacBook Air – Lightweight and powerful', Product 2: 'Dell XPS 13 – Ultra-thin performance'...
+- Pagination shows multiple pages. Found a "Next" button (index [88]) for page 2.
+
+Current count: 20 out of ? products (exact total unknown). Must repeat extraction for each page until no more products/pages found.
+
+Next: Proceed to Page 2 to extract the next set. Continue accumulating.
+""".strip(),
+                    'next_goal': """
+Think step by step: To continue gathering all products, I need to go to the next page. The page has a 'Next' button at index [88].
+
+WHY: Since I’ve extracted all items on Page 1, moving to Page 2 will allow me to continue progress toward full dataset. No other content left to extract here.
+
+Action: Click index [88] to go to next product page.
+""".strip(),
+                },
+                'action': [
+                    {'click_element': {'index': 88}}
+                ],
+            },
+            'id': str(self.state.tool_id),
+            'type': 'tool_call',
+        },
+    ],
+)
 		self._add_message_with_tokens(example_tool_call, message_type='init')
 		self.add_tool_message(content='Browser started', message_type='init')
 
