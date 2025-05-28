@@ -1,6 +1,6 @@
 import importlib.resources
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List
 
 from langchain_core.messages import HumanMessage, SystemMessage
 

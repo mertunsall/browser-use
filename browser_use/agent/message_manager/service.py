@@ -220,7 +220,7 @@ class MessageManager:
 			self._add_message_with_tokens(context_message, message_type='init')
 
 		task_message = HumanMessage(
-			content=f'Your ultimate task is: """{self.task}""". If you achieved your ultimate task, stop everything and use the done action in the next step to complete the task. If not, continue as usual.'
+			content=f'Your ultimate task is: \n<ultimate_task>\n{self.task.strip('\n')}\n</ultimate_task>.\nIf you achieved your ultimate task, stop everything and use the done action in the next step to complete the task. If not, continue as usual.'
 		)
 		self._add_message_with_tokens(task_message, message_type='init')
 
@@ -230,7 +230,7 @@ class MessageManager:
 			info_message = HumanMessage(content=info)
 			self._add_message_with_tokens(info_message, message_type='init')
 
-		placeholder_message = HumanMessage(content='Example output:')
+		placeholder_message = HumanMessage(content='Example output 1:')
 		self._add_message_with_tokens(placeholder_message, message_type='init')
 
 		example_tool_call = AIMessage(
@@ -259,10 +259,7 @@ So far:
 Next: Submit this form to view available flights.
 """.strip(),
                     'next_goal': """
-Think step by step: I’ve filled in all required fields to search for flights. The next logical step is to click the 'Search' button (index [42]) to proceed.
-
-WHY: This will load the results page where I can select a specific flight to continue booking.
-
+I filled in all required fields to search for flights. The next logical step is to click the 'Search' button (index [42]) to proceed.
 Action: Click index [42] to submit the search form.
 """.strip(),
                 },
@@ -289,20 +286,16 @@ The previous step was to extract all product names and descriptions from the cur
                     'memory': """
 Ultimate goal: Extract all products (name + description) from all pages of this category.
 
-So far:
-- Visited Page 1 of category 'Laptops'
-- Extracted 20 products:
-  - e.g., Product 1: 'MacBook Air – Lightweight and powerful', Product 2: 'Dell XPS 13 – Ultra-thin performance'...
-- Pagination shows multiple pages. Found a "Next" button (index [88]) for page 2.
+In this step, I extracted 2 products:
+- Product 1: 'MacBook Air – Lightweight and powerful'
+- Product 2: 'Dell XPS 13 – Ultra-thin performance'
 
-Current count: 20 out of ? products (exact total unknown). Must repeat extraction for each page until no more products/pages found.
+Current count: 2 out of ? products (exact total unknown). Must repeat extraction for each page until no more products/pages found.
 
-Next: Proceed to Page 2 to extract the next set. Continue accumulating.
+Next: Proceed to Page 2 to extract the next set. Continue accumulating the list above.
 """.strip(),
                     'next_goal': """
-Think step by step: To continue gathering all products, I need to go to the next page. The page has a 'Next' button at index [88].
-
-WHY: Since I’ve extracted all items on Page 1, moving to Page 2 will allow me to continue progress toward full dataset. No other content left to extract here.
+To continue gathering all products, I need to go to the next page. The page has a 'Next' button at index [88].
 
 Action: Click index [88] to go to next product page.
 """.strip(),
@@ -311,12 +304,17 @@ Action: Click index [88] to go to next product page.
                     {'click_element': {'index': 88}}
                 ],
             },
-            'id': str(self.state.tool_id),
+            'id': str(self.state.tool_id + 1),
             'type': 'tool_call',
         },
     ],
 )
 		self._add_message_with_tokens(example_tool_call, message_type='init')
+		self.add_tool_message(content='', message_type='init')
+
+		placeholder_message = HumanMessage(content='Example output 2:')
+		self._add_message_with_tokens(placeholder_message, message_type='init')
+		self._add_message_with_tokens(example_tool_call_2, message_type='init')
 		self.add_tool_message(content='Browser started', message_type='init')
 
 		placeholder_message = HumanMessage(content='[Your task history memory starts here]')
@@ -327,7 +325,7 @@ Action: Click index [88] to go to next product page.
 			self._add_message_with_tokens(filepaths_msg, message_type='init')
 
 	def add_new_task(self, new_task: str) -> None:
-		content = f'Your new ultimate task is: """{new_task}""". Take the previous context into account and finish your new ultimate task. '
+		content = f'Your new ultimate task is:\n<ultimate_task>\n{new_task.strip('\n')}\n</ultimate_task>.\nTake the previous context into account and finish your new ultimate task.'
 		msg = HumanMessage(content=content)
 		self._add_message_with_tokens(msg)
 		self.task = new_task
@@ -339,6 +337,7 @@ Action: Click index [88] to go to next product page.
 		result: list[ActionResult] | None = None,
 		step_info: AgentStepInfo | None = None,
 		use_vision=True,
+		#memories: list[str] | None = None,
 	) -> None:
 		"""Add browser state as human message"""
 
@@ -366,6 +365,7 @@ Action: Click index [88] to go to next product page.
 			result=result,
 			include_attributes=self.settings.include_attributes,
 			step_info=step_info,
+			#memories=memories,
 		).get_user_message(use_vision)
 		self._add_message_with_tokens(state_message)
 

@@ -24,8 +24,8 @@ Interactive Elements
 
 1. RESPONSE FORMAT: You must ALWAYS respond with valid JSON in this exact format. You are provided with explanations of what needs to go in each field.
    {{"current_state": {{"evaluation_previous_goal": "Critically assess if the last action achieved its purpose. Briefly state the expected outcome vs. what actually happened. Reason about the current elements in the website or any changes, if applicable. If the page state changed, explain how. If something failed, explain why. End with: Final Verdict: Success | Failure | Unknown",
-   "memory": "Track the exact progress: what was done, what the results were, how many times a repeated step was completed, what remains. Write here EVERYTHING you need to remember to successfully complete the task. Always include count: e.g., 3 out of 5 products extracted. Continue with X and Y. Reiterate previously saved useful information if it is still needed for reasoning or taking next steps. Maintain continuity.",
-   "next_goal": "Think step by step and describe clearly what needs to happen next and WHY. Include both the objective and the logic behind it: why this step helps reach the ultimate task. The response should end with 'Action: Natural language description of next immediate action."}},
+   "memory": "Track the progress towards the ultimate goal: what was done, what the results were, how many times a repeated step was completed, what remains. Write here EVERYTHING you need to remember from this step to successfully complete the task. Always include count: e.g., 3 out of 5 products extracted. Continue with X and Y.",
+   "next_goal": "Think step by step and describe clearly what needs to happen next. The response should end with 'Action: Natural language description of next immediate action."}},
    "action":[{{"one_action_name": {{// action-specific parameter}}}}, // ... more actions in sequence]}}
 
 2. ACTIONS: You can specify multiple actions in the list to be executed in sequence. But always specify only one action name per item. Use maximum {max_actions} actions per sequence.
@@ -38,6 +38,7 @@ Common action sequences:
 - Only provide the action sequence until an action which changes the page state significantly.
 - Try to be efficient, e.g. fill forms at once, or chain actions where nothing changes on the page
 - only use multiple actions if it makes sense.
+- Do NOT use multiple actions for "go_to_url" as you can be at a single page at a time. If you want to navigate to multiple URLs, do them sequentially.
 
 3. ELEMENT INTERACTION:
 
