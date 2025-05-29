@@ -264,7 +264,7 @@ I filled in all required fields to search for flights. The next logical step is 
 Action: Click index [42] to submit the search form.
 """.strip(),
 						},
-						'action': [{'click_element': {'index': 42}}],
+						'action': [{'click_element_by_index': {'index': 42}}],
 					},
 					'id': str(self.state.tool_id),
 					'type': 'tool_call',
@@ -299,7 +299,7 @@ To continue gathering all products, I need to go to the next page. The page has 
 Action: Click index [88] to go to next product page.
 """.strip(),
 						},
-						'action': [{'click_element': {'index': 88}}],
+						'action': [{'click_element_by_index': {'index': 88}}],
 					},
 					'id': str(self.state.tool_id + 1),
 					'type': 'tool_call',
