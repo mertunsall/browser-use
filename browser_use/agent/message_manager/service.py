@@ -252,12 +252,7 @@ I verified that the form fields were populated correctly, and no error messages 
 							'memory': """
 Ultimate goal: Book a one-way flight from JFK to SFO departing June 15, 2025.
 
-So far:
-- Filled departure and arrival fields
-- Set date to June 15, 2025
-- One-way trip confirmed as default (no return date shown)
-
-Next: Submit this form to view available flights.
+So far, I filled the departure and arrival fields, and the date. Next, I should submit this form to view available flights.
 """.strip(),
 							'next_goal': """
 I filled in all required fields to search for flights. The next logical step is to click the 'Search' button (index [42]) to proceed.
@@ -280,26 +275,34 @@ Action: Click index [42] to submit the search form.
 					'args': {
 						'current_state': {
 							'evaluation_previous_goal': """
-The previous step was to extract all product names and descriptions from the current e-commerce page. I successfully extracted title and description for each of them and I saved them to the memory below. There was no page reload, but I confirmed all elements matched expected patterns. Final Verdict: Success
+The previous step was to extract all product names and descriptions from the current e-commerce page. I successfully extracted title and description for each of them. Final Verdict: Success
 """.strip(),
 							'memory': """
-Ultimate goal: Extract all products (name + description) from all pages of this category.
+My ultimate goal is to extract all products (name + description) from all pages of this category.
 
-In this step, I extracted 2 products:
-- Product 1: 'MacBook Air – Lightweight and powerful'
-- Product 2: 'Dell XPS 13 – Ultra-thin performance'
+In this step, I extracted 2 products from the current page:
+1. Title: 'MacBook Air'
+Description: 'Lightweight and powerful'
+2. Title: 'Dell XPS 13'
+Description: 'Ultra-thin performance'
 
-Current count: 2 out of ? products (exact total unknown). Must repeat extraction for each page until no more products/pages found.
+Current count: 2 out of ? products (exact total unknown). Must repeat extraction for all elements on each page until no more products/pages found. I see that I can click index [18] to go to the next page.
 
-Next: Proceed to Page 2 to extract the next set. Continue accumulating the list above.
+Since I found some relevant data, I should use append_file to save this data to results.txt in the file system and proceed to the next page using the click_element_by_index action.
 """.strip(),
 							'next_goal': """
-To continue gathering all products, I need to go to the next page. The page has a 'Next' button at index [88].
-
-Action: Click index [88] to go to next product page.
+Append the data to results.txt and proceed to the next page.
 """.strip(),
 						},
-						'action': [{'click_element_by_index': {'index': 88}}],
+						'action': [
+							{
+								'append_file': {
+									'file_name': 'results.txt',
+									'append_content': '1. Title: MacBook Air: Lightweight and powerful\n2. Title: Dell XPS 13: Ultra-thin performance\n',
+								}
+							},
+							{'click_element_by_index': {'index': 18}},
+						],
 					},
 					'id': str(self.state.tool_id + 1),
 					'type': 'tool_call',
@@ -332,6 +335,7 @@ Action: Click index [88] to go to next product page.
 	def add_state_message(
 		self,
 		browser_state_summary: BrowserStateSummary,
+		file_system_summary: str | None = None,
 		result: list[ActionResult] | None = None,
 		step_info: AgentStepInfo | None = None,
 		use_vision=True,
@@ -361,9 +365,10 @@ Action: Click index [88] to go to next product page.
 		state_message = AgentMessagePrompt(
 			browser_state_summary=browser_state_summary,
 			result=result,
+			file_system_summary=file_system_summary,
 			include_attributes=self.settings.include_attributes,
 			step_info=step_info,
-			# memories=memories,
+			task=self.task,
 		).get_user_message(use_vision)
 		self._add_message_with_tokens(state_message)
 
