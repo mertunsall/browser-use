@@ -106,6 +106,7 @@ For example, actions that need to run playwright code to interact with the brows
 - `browser_session: BrowserSession` - The current browser session (and playwright context via `browser_session.browser_context`)
 - `context: AgentContext` - Any optional top-level context object passed to the Agent, e.g. `Agent(context=user_provided_obj)`
 - `page_extraction_llm: BaseChatModel` - LLM instance used for page content extraction
+- `file_system: FileSystem` - File system model can use to read and write files
 - `available_file_paths: list[str]` - List of available file paths for upload / processing
 - `has_sensitive_data: bool` - Whether the action content contains sensitive data markers (check this to avoid logging sensitive data to terminal by accident)
 

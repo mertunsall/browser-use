@@ -64,11 +64,13 @@ class AgentMessagePrompt:
 		self,
 		browser_state_summary: 'BrowserStateSummary',
 		result: list['ActionResult'] | None = None,
+		file_system_summary: str | None = None,
 		include_attributes: list[str] | None = None,
 		step_info: Optional['AgentStepInfo'] = None,
 	):
 		self.state: 'BrowserStateSummary' = browser_state_summary
 		self.result = result
+		self.file_system_summary = file_system_summary
 		self.include_attributes = include_attributes or []
 		self.step_info = step_info
 		assert self.state
@@ -105,6 +107,7 @@ class AgentMessagePrompt:
 		state_description = f"""
 [Task history memory ends]
 [Current state starts here]
+{self.file_system_summary}
 The following is one-time information - if you need to remember it write it to memory:
 Current url: {self.state.url}
 Available tabs:
